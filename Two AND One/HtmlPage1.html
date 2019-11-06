@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html ng-app="App">
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+    <style>
+        .qa:first-child {
+  border-bottom: none;
+}
+    </style>
+    <script>
+        var app = angular.module("App", []).controller("MyCtrl", function ($scope, $http) {
+
+
+
+            //$(document).ready(function () {
+            //    $("#btnExport").click(function(){
+            //        $(".table2excel").table2excel({
+            //            filename: "Employees.xls"
+            //        });
+            //    })
+              
+            //});
+
+           
+
+            $scope.tablesToExcel = (function (tables) {
+
+        var uri = 'data:application/vnd.ms-excel;base64,',
+        template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+        base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))); },
+        format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) };
+
+                var worksheetsData = "";
+                var dataValue = "";
+
+                for (var i = 0; i < tables.length; i++) {
+                    var table = document.getElementById(tables[i]);
+
+                   
+
+                    dataValue += table.outerHTML + (/<br\s*\/?>/gi,+"" + "\r\n" );
+
+                    ctx = { worksheet: 'sheet', table: dataValue };
+                   
+                }
+                worksheetsData += format(template, ctx);
+
+                var link = document.createElement("A");
+                link.href = uri + base64(worksheetsData);
+                link.download = 'ExportData' || 'Workbook.xls';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            
+
+            
+
+            $http.get("/Home/Index").then(function (response) {
+                $scope.Display = response.data;
+
+            })
+            $http.get("/Home/Index1").then(function (response) {
+                console.log(response.data)
+                $scope.Display1 = response.data;
+
+            })
+
+            $scope.TryTo = function () {
+                $http.get("/Home/TryTO").then(function (response) {
+                    alert("TryTO")
+                    console.log(response.data);
+
+                })
+            }
+
+
+
+        })
+
+
+       
+    </script>
+</head>
+<body ng-controller="MyCtrl">
+    <div>
+        <table border="1" style="border-collapse:collapse" id="1" name="1">
+            
+            <tr>
+                <td colspan="5" style="visibility:hidden;text-align:center;background-color:aqua"><h3> User Info Details</h3></td>
+            </tr>
+
+            <tr>
+                <th>Id</th>
+                <th>UserName</th>
+                <th>Password</th>
+                <th>Email</th>
+                <th>Address</th>
+
+            </tr>
+            <tr ng-repeat="s in Display">
+                <td>{{s.Id}}</td>
+                <td>{{s.UserName}}</td>
+                <td>{{s.Password}}</td>
+                <td>{{s.Email}}</td>
+                <td>{{s.Address}}</td>
+            </tr>
+        </table>
+    </div>
+        <br/>
+        <br/>
+    <div>
+       
+        <table border="1" style="border-collapse:collapse" id="2" name="2">
+            <tr>
+                <td colspan="2" style="visibility:hidden;background-color:aqua;"><h3> Password table Details</h3></td>
+            </tr>
+            <tr>
+                <th>ID</th>
+                <th>PASSWORD</th>
+            </tr>
+            <tr ng-repeat="two in Display1">
+                <td>
+                    {{two.Id}}
+                </td>
+                <td>{{two.Password}}</td>
+            </tr>
+        </table>
+    </div>
+  
+<br/>
+    <div>
+        <button ng-click="tablesToExcel(['1','2'], ['EMP DEATILS'], 'TestBook.xls', 'Excel')"> to </button>
+
+
+    </div>
+</body>
+</html>
